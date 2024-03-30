@@ -10,8 +10,9 @@ logging.basicConfig(level=logging.INFO)
 bot = Bot(token=config.token, parse_mode="HTML")
 # Диспетчер
 dp = Dispatcher()
-
+# связь диспетчера и роутеров (связь диспетчер — роутеры — хэндлеры)
 dp.include_routers(default.start_router, add_purchase.add_purchase_router)
+
 
 # Запуск процесса поллинга новых апдейтов
 async def main():
