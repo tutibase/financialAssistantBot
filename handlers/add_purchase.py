@@ -1,3 +1,4 @@
+import io
 from aiogram.filters.state import StatesGroup, State
 from aiogram import Router
 from aiogram import F
@@ -6,6 +7,9 @@ from aiogram.fsm.context import FSMContext
 from aiogram import types
 import keyboards
 from aiogram.types import ReplyKeyboardRemove
+from PIL import Image
+from pyzbar.pyzbar import decode
+from datetime import date
 
 
 class AddPurchase(StatesGroup):
@@ -55,6 +59,15 @@ def add_category(user_id: int, message: types.Message):
         my_file.close()
 
 
+def image_processing(img: Image):
+    decoded_list = decode(img)
+    qr_text = decoded_list[0].data.decode()
+    qr_date_str = qr_text[qr_text.find('t=')+2:qr_text.find('t=')+10]
+    qr_date = date(int(qr_date_str[0:4]), int(qr_date_str[4:6]), int(qr_date_str[6:]))
+
+    qr_sum = float(qr_text[qr_text.find('s=')+2:qr_text.find('&fn=')])
+    return qr_sum, qr_date
+
 # создание роутера для связи диспетчера и хэндлеров
 add_purchase_router = Router()
 
@@ -82,7 +95,7 @@ async def category_chosen(message: types.Message, state: FSMContext):
     await state.set_state(AddPurchase.sum_input)
 
 
-# Хэндлер на ввод суммы
+# Хэндлер на ввод суммы текстом
 @add_purchase_router.message(AddPurchase.sum_input, F.text)
 async def text_sum_entered(message: types.Message, state: FSMContext):
     try:
@@ -99,3 +112,16 @@ async def text_sum_entered(message: types.Message, state: FSMContext):
     except ValueError:
         await message.answer(text="Введите сумму заново")
         return
+
+
+@add_purchase_router.message(AddPurchase.sum_input, F.photo)
+async def photo_sum_entered(message: types.Message, state: FSMContext):
+    photo_bytes = await message.bot.download(file=message.photo[-1].file_id, destination=io.BytesIO())
+    photo_bytes.seek(0)
+    image = Image.open(photo_bytes)
+    qr_sum, qr_date = image_processing(image)
+
+    #добавить покупку в csv!!!!!!!!!!!!!
+    await message.answer(text="Покупка добавлена",
+                             reply_markup=keyboards.make_row_keyboard(["Добавить покупку", "Посмотреть расходы"]))
+    await state.clear()
