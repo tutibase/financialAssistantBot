@@ -14,5 +14,3 @@ default_categories = ["Продукты", "Транспорт", "Медицин�
 async def cmd_start(message: types.Message):
     await message.answer(f"Здравствуйте, {html.quote(message.from_user.full_name)}!",
                          reply_markup=make_row_keyboard(start_list))
-
-

@@ -44,7 +44,7 @@ def add_category(user_id: int, message: types.Message):
     """
     Добавление в общий словарь (файл) категорий пользователей новой категории
     :param user_id: Telegram id пользователя
-    :param message: отправленное пользовтелем сообщение с категорией
+    :param message: отправленное пользователем сообщение с категорией
     """
 
     input_category = message.text.lower()
@@ -73,7 +73,7 @@ def add_category(user_id: int, message: types.Message):
         my_file.close()
 
 
-# Добавить проверку на отсутсвие qr-кода!!!!!
+# Добавить проверку на отсутствие qr-кода!!!!!
 def image_processing(img: Image) -> (float, date):
     """
     Обработка фото чека с QR-кодом и получение из него информации о покупке
@@ -133,7 +133,7 @@ async def choose_category(message: types.Message, state: FSMContext):
 async def category_chosen(message: types.Message, state: FSMContext):
     user_id = message.from_user.id
     add_category(user_id, message)  # добавление категории в файл
-    await state.update_data(chosen_category=message.text.lower())  # добавлении информации о категории в state
+    await state.update_data(chosen_category=message.text.lower())  # добавление информации о категории в state
     await message.answer(text="Теперь введите сумму покупки или отправьте фото чека (QR-код)",
                          reply_markup=ReplyKeyboardRemove())
     # Установка состояния ввода суммы
@@ -152,13 +152,15 @@ async def text_sum_entered(message: types.Message, state: FSMContext):
 
         # Получаем ранее введенную категорию
         user_data = await state.get_data()
+        user_category = user_data['chosen_category']
+        user_category = user_category[0].upper() + user_category[1:]
 
         # Добавляем покупку в файл
         new_row_purchase(message.from_user.id, date.today(), purchase_sum, user_data['chosen_category'])
 
         # Сообщение об успешном добавлении
         await message.answer(
-            text=f"Покупка на сумму {purchase_sum} руб. в категории {user_data['chosen_category']} добавлена",
+            text=f"Покупка на сумму {purchase_sum} руб. добавлена в категорию {user_category}",
             reply_markup=keyboards.make_row_keyboard(start_list))
         # Сброс состояние диалога (выход из конечного автомата)
         await state.clear()
@@ -185,7 +187,7 @@ async def photo_sum_entered(message: types.Message, state: FSMContext):
     new_row_purchase(message.from_user.id, qr_date, qr_sum, user_data['chosen_category'])
 
     # Сообщение об успешном добавлении
-    await message.answer(text=f"Покупка на сумму {qr_sum} руб. в категории {user_data['chosen_category']} добавлена",
+    await message.answer(text=f"Покупка на сумму {qr_sum} руб. добавлена в категорию {user_data['chosen_category']}",
                          reply_markup=keyboards.make_row_keyboard(start_list))
     # Сброс состояние диалога (выход из конечного автомата)
     await state.clear()
