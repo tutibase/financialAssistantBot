@@ -4,6 +4,8 @@ import logging
 from aiogram import Bot, Dispatcher
 from handlers import default, add_purchase
 
+# special thanks to mastergroosha and https://mastergroosha.github.io/aiogram-3-guide/
+
 # Включаем логирование, чтобы не пропустить важные сообщения
 logging.basicConfig(level=logging.INFO)
 # Объект бота
