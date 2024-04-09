@@ -10,7 +10,7 @@ from aiogram.types import ReplyKeyboardRemove
 from PIL import Image
 from pyzbar.pyzbar import decode
 from datetime import date
-from default import start_list, default_categories
+from handlers.default import start_list, default_categories
 
 
 class AddPurchase(StatesGroup):
