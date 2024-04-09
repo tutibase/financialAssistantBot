@@ -13,7 +13,7 @@ bot = Bot(token=config.token, parse_mode="HTML")
 # Диспетчер
 dp = Dispatcher()
 # Связь диспетчера и роутеров (связь диспетчер — роутеры — хэндлеры)
-dp.include_routers(default.start_router, add_purchase.add_purchase_router)
+dp.include_routers(default.default_router, add_purchase.add_purchase_router)
 
 
 # Запуск процесса поллинга новых апдейтов
