@@ -2,7 +2,7 @@ import config
 import asyncio
 import logging
 from aiogram import Bot, Dispatcher
-from handlers import default, add_purchase
+from handlers import default, add_purchase, make_report
 
 # special thanks to mastergroosha and https://mastergroosha.github.io/aiogram-3-guide/
 
@@ -13,7 +13,7 @@ bot = Bot(token=config.token, parse_mode="HTML")
 # Диспетчер
 dp = Dispatcher()
 # Связь диспетчера и роутеров (связь диспетчер — роутеры — хэндлеры)
-dp.include_routers(default.default_router, add_purchase.add_purchase_router)
+dp.include_routers(default.default_router, add_purchase.add_purchase_router, make_report.make_report_router)
 
 
 # Запуск процесса поллинга новых апдейтов

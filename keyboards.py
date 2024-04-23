@@ -12,7 +12,7 @@ def make_row_keyboard(items: list[str]) -> ReplyKeyboardMarkup:
     return ReplyKeyboardMarkup(keyboard=[row],resize_keyboard=True)
 
 
-def make_categories_keyboard(items: list[str]) -> ReplyKeyboardMarkup:
+def make_2col_keyboard(items: list[str]) -> ReplyKeyboardMarkup:
     """
     Создаем клавиатуру категорий с кнопками в два столбца
     :param items: список строк для кнопок

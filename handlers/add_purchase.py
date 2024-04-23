@@ -123,7 +123,7 @@ async def choose_category(message: types.Message, state: FSMContext):
     user_id = message.from_user.id
     # Создание клавиатуры с доступными категориями и предложение выбрать одну из них
     await message.answer(text="Выберите категорию или введите новую",
-                         reply_markup=keyboards.make_categories_keyboard(available_categories(user_id)))
+                         reply_markup=keyboards.make_2col_keyboard(available_categories(user_id)))
     # Установка состояния выбора категории
     await state.set_state(AddPurchase.choosing_category)
 

@@ -11,7 +11,7 @@ from aiogram.types import Message
 default_router = Router()
 start_list = ["Добавить покупку", "Посмотреть расходы"]
 default_categories = ["Продукты", "Транспорт", "Медицина", "Одежда"]
-
+available_periods = ["Последний год","Последний месяц","Конкретный период","Конкретная дата"]
 
 # Хэндлер на команду /start
 @default_router.message(Command("start"))
