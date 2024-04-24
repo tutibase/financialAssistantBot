@@ -73,8 +73,7 @@ def add_category(user_id: int, message: types.Message):
         my_file.close()
 
 
-# Добавить проверку на отсутствие qr-кода!!!!!
-def image_processing(img: Image) -> (float, date):
+def image_processing(img: Image) -> (bool, float, date):
     """
     Обработка фото чека с QR-кодом и получение из него информации о покупке
     :param img: объект-изображение формата библиотеки PIL
@@ -82,12 +81,20 @@ def image_processing(img: Image) -> (float, date):
     """
 
     decoded_list = decode(img)
+    # если qr на фото нет, то выходим
+    if not decoded_list:
+        return False, 0, date.today()
+
     qr_text = decoded_list[0].data.decode()
+    # если это не qr чека, то выходим
+    if qr_text.find('&s=') == -1:
+        return False, 0, date.today()
+    # извлекаем дату из текста qr кода
     qr_date_str = qr_text[qr_text.find('t=')+2:qr_text.find('t=')+10]
     qr_date = date(int(qr_date_str[0:4]), int(qr_date_str[4:6]), int(qr_date_str[6:]))
-
+    # извлекаем сумму из текста qr кода
     qr_sum = float(qr_text[qr_text.find('s=')+2:qr_text.find('&fn=')])
-    return qr_sum, qr_date
+    return True, qr_sum, qr_date
 
 
 def new_row_purchase(user_id: int, purchase_date: date, purchase_sum, purchase_category: str):
@@ -178,7 +185,13 @@ async def photo_sum_entered(message: types.Message, state: FSMContext):
     photo_bytes = await message.bot.download(file=message.photo[-1].file_id, destination=io.BytesIO())
     photo_bytes.seek(0)
     image = Image.open(photo_bytes)
-    qr_sum, qr_date = image_processing(image)  # Извлечение из фото суммы и даты покупки
+    correct_processing, qr_sum, qr_date = image_processing(image)  # Извлечение из фото суммы и даты покупки
+
+    # если не смогли считать данные с фото, то просим отправить новое фото
+    if not correct_processing:
+        await message.answer(text="К сожалению, не удалось считать данные с чека,"
+                                  " отправьте другое фото или введите сумму текстом")
+        return
 
     # Получаем ранее введенную категорию
     user_data = await state.get_data()
