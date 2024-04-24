@@ -80,21 +80,31 @@ def image_processing(img: Image) -> (bool, float, date):
     :return: пара значений (сумма покупки, дата покупки)
     """
 
+    correct_processing = False
+    qr_sum = 0
+    qr_date = date.today()
     decoded_list = decode(img)
     # если qr на фото нет, то выходим
     if not decoded_list:
-        return False, 0, date.today()
+        return correct_processing, qr_sum, qr_date
 
-    qr_text = decoded_list[0].data.decode()
-    # если это не qr чека, то выходим
-    if qr_text.find('&s=') == -1:
-        return False, 0, date.today()
-    # извлекаем дату из текста qr кода
-    qr_date_str = qr_text[qr_text.find('t=')+2:qr_text.find('t=')+10]
-    qr_date = date(int(qr_date_str[0:4]), int(qr_date_str[4:6]), int(qr_date_str[6:]))
-    # извлекаем сумму из текста qr кода
-    qr_sum = float(qr_text[qr_text.find('s=')+2:qr_text.find('&fn=')])
-    return True, qr_sum, qr_date
+    # проходим по всем считанным qr
+    for decoded_qr in decoded_list:
+        qr_text = decoded_qr.data.decode()
+        # если это не qr чека, то смотрим следующий
+        if qr_text.find('&s=') == -1 or qr_text.find('t=') == -1:
+            continue
+
+        # найден qr код чека, обрабатываем:
+        # извлекаем дату из текста qr кода
+        qr_date_str = qr_text[qr_text.find('t=') + 2:qr_text.find('t=') + 10]
+        qr_date = date(int(qr_date_str[0:4]), int(qr_date_str[4:6]), int(qr_date_str[6:]))
+        # извлекаем сумму из текста qr кода
+        qr_sum = float(qr_text[qr_text.find('s=') + 2:qr_text.find('&fn=')])
+        correct_processing = True
+        break
+
+    return correct_processing, qr_sum, qr_date
 
 
 def new_row_purchase(user_id: int, purchase_date: date, purchase_sum, purchase_category: str):
